@@ -1,0 +1,44 @@
+name: Stale PR Policy
+
+on:
+  schedule:
+    # Runs daily at 9 AM ET (14:00 UTC)
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (log actions without making changes)'
+        required: false
+        default: 'true'
+        type: choice
+        options: ['true', 'false']
+      warn_days:
+        description: 'Days of inactivity before warning'
+        required: false
+        default: '23'
+      close_days:
+        description: 'Days of inactivity before closing'
+        required: false
+        default: '30'
+
+jobs:
+  stale-prs:
+    name: Sweep stale PRs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run stale PR sweep
+        env:
+          GH_TOKEN: ${{ secrets.STALE_BOT_TOKEN }}
+          ORG: joinmason
+          WARN_DAYS: ${{ inputs.warn_days || '23' }}
+          CLOSE_DAYS: ${{ inputs.close_days || '30' }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          chmod +x scripts/stale-prs.sh
+          bash scripts/stale-prs.sh
