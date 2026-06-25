@@ -4,6 +4,13 @@
 # Drafts and PRs with exempt labels are skipped.
 set -euo pipefail
 
+if [ -z "${GH_TOKEN:-}" ]; then
+  echo "ERROR: GH_TOKEN is not set. Add STALE_BOT_TOKEN as a repo secret on joinmason/.github."
+  echo "Create a classic PAT at https://github.com/settings/tokens with 'repo' scope, then:"
+  echo "  gh secret set STALE_BOT_TOKEN --repo joinmason/.github"
+  exit 1
+fi
+
 ORG="${ORG:-joinmason}"
 WARN_DAYS="${WARN_DAYS:-23}"
 CLOSE_DAYS="${CLOSE_DAYS:-30}"
